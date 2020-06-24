@@ -9,6 +9,7 @@ def make_enc(time, clazzId, duration, clipTime, objectId, jobid, userid):
     raw = '[{0}][{1}][{2}][{3}][{4}][{5}][{6}][{7}]'.format(clazzId, userid, jobid, objectId, time*1000, "d_yHJ!$pdA~5", duration*1000, clipTime)
     return hashlib.md5(raw.encode('utf-8')).hexdigest()
 
+
 def make_sequence(clazzId, duration, clipTime, objectId, jobid, userid):
     playingTime = -60
     result = []
@@ -20,23 +21,31 @@ def make_sequence(clazzId, duration, clipTime, objectId, jobid, userid):
         result.append((playingTime, enc))
     return result
 
-def get_mArg(url, cookies):
+
+def get_arg(url, cookies):
     chapterId = re.search(r'chapterId=(.*?)&', url).group(1)
     clazzId = re.search(r'clazzid=(.*?)&', url).group(1)
     courseId = re.search(r'courseId=(.*?)&', url).group(1)
     url = "http://mooc1.mooc.whu.edu.cn/knowledge/cards?clazzid=" + clazzId + "&courseid=" + courseId + "&knowledgeid=" + chapterId + "&num=0&ut=s&cpi=64752888&v=20160407-1"
     ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'
     headers = {'User-Agent':ua}
+
     html = requests.get(url, cookies=cookies, headers=headers).text
-    mArg_string  = re.search("mArg = ({.+?});", html, re.S).group(1)
-    mArg = json.loads(mArg_string)
-    return mArg
+    arg_string = re.search("mArg = ({.+?});", html, re.S).group(1)
+    arg = json.loads(arg_string)
+    for item in arg['attachments']:
+        sub_url = item['objectId']
+        url = "http://mooc1.mooc.whu.edu.cn/ananas/status/" + sub_url
+        html = requests.get(url, cookies=cookies, headers=headers).text
+        item['dtoken'] = re.search('"dtoken":"(.*?)"', html).group(1)
+    return arg
+
 
 def play_video(url, cookies):
-    mArg = get_mArg(url, cookies)
-    clazzId = mArg['defaults']['clazzId']
-    userid = mArg['defaults']['userid']
-    for video in mArg['attachments']:
+    arg = get_arg(url, cookies)
+    clazzId = arg['defaults']['clazzId']
+    userid = arg['defaults']['userid']
+    for video in arg['attachments']:
         duration = int(video['headOffset'])/1000
         clipTime = '0_' + str(duration)
         objectId = video['objectId']
