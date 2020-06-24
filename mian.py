@@ -2,6 +2,7 @@ import re
 import hashlib
 import requests
 import json
+import time
 
 def make_enc(time, clazzId, duration, clipTime, objectId, jobid, userid):
     if jobid == None:
@@ -43,7 +44,7 @@ def get_arg(url, cookies):
 
 def play_video(url, cookies):
     arg = get_arg(url, cookies)
-    clazzId = arg['defaults']['clazzId']
+    clazzId = str(arg['defaults']['clazzId'])
     userid = arg['defaults']['userid']
     for video in arg['attachments']:
         duration = int(video['headOffset'])/1000
@@ -51,11 +52,17 @@ def play_video(url, cookies):
         objectId = video['objectId']
         otherInfo = video['otherInfo']
         jobid = video['jobid']
+        dtoken = video['dtoken']
         sequence = make_sequence(clazzId, duration, clipTime, objectId, jobid, userid)
+        standard_t = int(round(time.time() * 1000))
         for info in sequence:
             playingTime = info[0]
+            _t = standard_t + playingTime * 1000
             enc = info[1]
-            pass
+            url = "http://mooc1.mooc.whu.edu.cn/multimedia/log/a/64752888/" + dtoken + "?clazzId=" + clazzId + "&playingTime=" + str(playingTime) +"&duration=" + str(duration) + "&clipTime=" + clipTime + "&objectId=" + objectId + "&otherInfo=" + otherInfo + "&jobid=" + jobid + "&userid=" + userid + "&isdrag=0&view=pc&enc=" + enc + "&rt=0.9&dtype=Video&_t=" + str(_t)
+            ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'
+            headers = {'User-Agent': ua}
+            print(requests.get(url, cookies=cookies, headers=headers).status_code)
 
 
 if __name__ == '__main__':
