@@ -23,15 +23,19 @@ def make_sequence(clazzId, duration, clipTime, objectId, jobid, userid):
         result.append((playingTime, enc))
     return result
 
-# 获取请求相关参数
+# 获取相关参数
 def get_arg(url, cookies):
+    # 从url中截取一部分参数
     chapterId = re.search(r'chapterId=(.*?)&', url).group(1)
     clazzId = re.search(r'clazzid=(.*?)&', url).group(1)
     courseId = re.search(r'courseId=(.*?)&', url).group(1)
+
+    # 构造请求
     url = "http://mooc1.mooc.whu.edu.cn/knowledge/cards?clazzid=" + clazzId + "&courseid=" + courseId + "&knowledgeid=" + chapterId + "&num=0&ut=s&cpi=64752888&v=20160407-1"
     ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'
     headers = {'User-Agent':ua}
 
+    #从返回的页面中获取另一部分参数
     html = requests.get(url, cookies=cookies, headers=headers).text
     arg_string = re.search("mArg = ({.+?});", html, re.S).group(1)
     arg = json.loads(arg_string)
@@ -40,6 +44,7 @@ def get_arg(url, cookies):
         url = "http://mooc1.mooc.whu.edu.cn/ananas/status/" + sub_url
         html = requests.get(url, cookies=cookies, headers=headers).text
         item['dtoken'] = re.search('"dtoken":"(.*?)"', html).group(1)
+
     return arg
 
 
@@ -81,7 +86,7 @@ def play_video(url, cookies):
 
 
 if __name__ == '__main__':
-    url = "http://mooc1.mooc.whu.edu.cn/mycourse/studentstudy?chapterId=331570352&courseId=207018950&clazzid=14103123&enc=5085df6bb6f7a2546c8ad0a57d938da3"
+    url = input("Input the url here:\n")
 
     # 读取cookies
     f = open(r'cookies.txt', 'r')
