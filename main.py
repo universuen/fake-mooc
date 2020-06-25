@@ -39,6 +39,15 @@ def get_arg(url, cookies):
     html = requests.get(url, cookies=cookies, headers=headers).text
     arg_string = re.search("mArg = ({.+?});", html, re.S).group(1)
     arg = json.loads(arg_string)
+    del_list = []
+
+    # 删除多余项
+    for i in range(len(arg['attachments'])):
+        if len(arg['attachments'][i]) != 9:
+            del_list.append(i)
+    for i in del_list:
+        del arg['attachments'][i]
+
     for item in arg['attachments']:
         sub_url = item['objectId']
         url = "http://mooc1.mooc.whu.edu.cn/ananas/status/" + sub_url
