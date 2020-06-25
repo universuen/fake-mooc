@@ -73,7 +73,7 @@ def play_video(url, cookies):
 
             # 相关参数预处理
             playingTime = str(info[0])
-            _t = str(standard_t + int(playingTime * 1000))
+            _t = str(standard_t + int(playingTime) * 1000)
             enc = info[1]
 
             # 拼接url
@@ -82,7 +82,7 @@ def play_video(url, cookies):
             # 发送请求并回执状态码
             ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'
             headers = {'User-Agent': ua}
-            print(requests.get(url, cookies=cookies, headers=headers).text)
+            print(requests.get(url, cookies=cookies, headers=headers).status_code)
 
 
 if __name__ == '__main__':
