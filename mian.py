@@ -53,13 +53,14 @@ def play_video(url, cookies):
     for video in arg['attachments']:
 
         # 相关参数预处理
-        duration = str(int(video['headOffset'])/1000)
+        duration = int(int(video['headOffset'])/1000)
         clipTime = '0_' + str(duration)
         objectId = video['objectId']
         otherInfo = video['otherInfo']
         jobid = video['jobid']
         dtoken = video['dtoken']
         sequence = make_sequence(clazzId, duration, clipTime, objectId, jobid, userid)
+        duration = str(duration)
         standard_t = int(round(time.time() * 1000))
 
         # 将每一个状态序列依次发送到服务端
@@ -76,7 +77,7 @@ def play_video(url, cookies):
             # 发送请求并回执状态码
             ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36'
             headers = {'User-Agent': ua}
-            print(requests.get(url, cookies=cookies, headers=headers).status_code)
+            print(requests.get(url, cookies=cookies, headers=headers).text)
 
 
 if __name__ == '__main__':
